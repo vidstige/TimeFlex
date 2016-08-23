@@ -7,5 +7,6 @@ android:
     - android-24
 
 script:
+   - sudo android update sdk --no-ui --all --filter build-tools-24.0.1
    - ./gradlew build
    
