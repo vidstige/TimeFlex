@@ -3,11 +3,9 @@ android:
   components:
     - tools
     - platform-tools
-    - build-tools-24
-    - android-24
+    - build-tools-22
+    - android-22
 
 script:
-   - android list sdk -a
-   - android update sdk --no-ui --all --filter build-tools-24.0.1
    - ./gradlew build
    
