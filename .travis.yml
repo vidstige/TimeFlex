@@ -1,4 +1,11 @@
+language: android
 android:
   components:
-    - tools # to get the new `repository-11.xml`
-    - tools # to install Android SDK tools 25.1.x (x = 6 right now)
+    - tools
+    - platform-tools
+    - build-tools-24
+    - android-24
+
+script:
+   - ./gradlew build
+   
