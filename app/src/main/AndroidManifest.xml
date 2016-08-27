@@ -21,6 +21,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".WifiLogger" >
+            <intent-filter>
+                <action android:name="android.net.wifi.SCAN_RESULTS" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

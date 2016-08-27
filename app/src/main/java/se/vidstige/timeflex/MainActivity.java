@@ -55,12 +55,6 @@ public class MainActivity extends AppCompatActivity
             //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
 
         }
-
-        wifiLogger = new WifiLogger();
-        IntentFilter i = new IntentFilter();
-        i.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        registerReceiver(wifiLogger, i);
-
     }
 
     @Override
