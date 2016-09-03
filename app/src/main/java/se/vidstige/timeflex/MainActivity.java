@@ -8,12 +8,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         punchStore = new PunchStore(this);
+        final Context context = this;
 
         final Button start_button = (Button) findViewById(R.id.start_button);
         start_button.setOnClickListener(new View.OnClickListener() {
@@ -33,9 +34,8 @@ public class MainActivity extends AppCompatActivity {
                 Punch p = Punch.in(new Date());
                 try {
                     punchStore.save(p);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
+                    Toast.makeText(context, "Punched in", Toast.LENGTH_LONG).show();
+                } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
                 //new PostPunch(p).execute();
@@ -48,23 +48,21 @@ public class MainActivity extends AppCompatActivity {
                 Punch p = Punch.out(new Date());
                 try {
                     punchStore.save(p);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
+                    Toast.makeText(context, "Punched out", Toast.LENGTH_LONG).show();
+                } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
-                //new PostPunch(p).execute();
             }
         });
 
         final Button upload_button = (Button) findViewById(R.id.upload_button);
-        final Context context = this;
         upload_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
                     for (String filename : punchStore.getAllFilenames()) {
                         new PostPunch(context, filename).execute();
                     }
+                    Toast.makeText(context, "Uploaded", Toast.LENGTH_LONG).show();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }

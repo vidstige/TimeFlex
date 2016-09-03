@@ -12,7 +12,6 @@ import java.net.URL;
 
 class PostPunch extends AsyncTask<String, Void, Integer> {
 
-
     private final Context context;
     private final String filename;
 
@@ -58,7 +57,7 @@ class PostPunch extends AsyncTask<String, Void, Integer> {
             this.exception = e;
             e.printStackTrace();
         }
-        return Integer.valueOf(0);
+        return 0;
     }
 
     protected void onPostExecute(Void result) {
