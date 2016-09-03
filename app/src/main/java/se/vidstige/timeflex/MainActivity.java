@@ -1,6 +1,7 @@
 package se.vidstige.timeflex;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,11 +11,12 @@ import android.widget.Button;
 
 import org.json.JSONException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-
 
     private PunchStore punchStore;
 
@@ -36,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                new PostPunch(p).execute();
+                //new PostPunch(p).execute();
             }
         });
 
@@ -51,7 +53,21 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                new PostPunch(p).execute();
+                //new PostPunch(p).execute();
+            }
+        });
+
+        final Button upload_button = (Button) findViewById(R.id.upload_button);
+        final Context context = this;
+        upload_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                try {
+                    for (String filename : punchStore.getAllFilenames()) {
+                        new PostPunch(context, filename).execute();
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         });
 

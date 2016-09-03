@@ -5,6 +5,7 @@ import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Vector;
 
 public class PunchStore {
     private static final SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
@@ -53,5 +55,15 @@ public class PunchStore {
     public void save(Punch punch) throws IOException, JSONException {
         FileOutputStream fileOutputStream = context.openFileOutput(getFilename(context), Context.MODE_PRIVATE);
         serialize(punch, fileOutputStream);
+    }
+
+    public Vector<String> getAllFilenames() throws FileNotFoundException {
+        Vector<String> filenames = new Vector<>();
+        for (String filename : context.fileList()) {
+            if (filename.endsWith(".punch")) {
+                filenames.add(filename);
+            }
+        }
+        return filenames;
     }
 }
