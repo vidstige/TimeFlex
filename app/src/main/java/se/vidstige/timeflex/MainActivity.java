@@ -8,66 +8,64 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ShiftStore.Listener {
 
-    private PunchStore punchStore;
+    private ShiftStore shiftStore;
+    private Button stop_button;
+    private Button start_button;
+    private TextView status_label;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        punchStore = new PunchStore(this);
+        shiftStore = new ShiftStore(this, this.getPreferences(MODE_PRIVATE));
         final Context context = this;
 
-        final Button start_button = (Button) findViewById(R.id.start_button);
+        status_label = (TextView) findViewById(R.id.status);
+
+        start_button = (Button) findViewById(R.id.start_button);
         start_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Punch p = Punch.in(new Date());
-                try {
-                    punchStore.save(p);
-                    Toast.makeText(context, "Punched in", Toast.LENGTH_LONG).show();
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-                //new PostPunch(p).execute();
+                shiftStore.startShift();
+                Toast.makeText(context, "Punched in", Toast.LENGTH_LONG).show();
             }
         });
 
-        final Button stop_button = (Button) findViewById(R.id.stop_button);
+        stop_button = (Button) findViewById(R.id.stop_button);
         stop_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Punch p = Punch.out(new Date());
-                try {
-                    punchStore.save(p);
-                    Toast.makeText(context, "Punched out", Toast.LENGTH_LONG).show();
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
+                shiftStore.endShift();
+                Toast.makeText(context, "Punched out", Toast.LENGTH_LONG).show();
             }
         });
 
         final Button upload_button = (Button) findViewById(R.id.upload_button);
         upload_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                try {
-                    for (String filename : punchStore.getAllFilenames()) {
-                        new PostPunch(context, filename).execute();
+                for (String filename : context.fileList()) {
+                    try {
+                        if (filename.endsWith(".shift")) {
+                            URL url = new URL("http://timeflex-vidstige.rhcloud.com/api/shift/");
+                            new PostJson(context, filename, url).execute();
+                        }
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
                     }
-                    Toast.makeText(context, "Uploaded", Toast.LENGTH_LONG).show();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 }
+                Toast.makeText(context, "Uploaded", Toast.LENGTH_LONG).show();
             }
         });
+
+        shiftStore.addListener(this);
 
         final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
@@ -75,5 +73,19 @@ public class MainActivity extends AppCompatActivity {
                     PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
             //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
         }
+    }
+
+    @Override
+    public void onStarted(ShiftStore store, Shift shift) {
+        start_button.setEnabled(false);
+        stop_button.setEnabled(true);
+        status_label.setText(R.string.working_status);
+    }
+
+    @Override
+    public void onEnded(ShiftStore store, Shift shift) {
+        start_button.setEnabled(true);
+        stop_button.setEnabled(false);
+        status_label.setText(R.string.idle_status);
     }
 }
