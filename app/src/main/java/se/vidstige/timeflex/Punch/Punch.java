@@ -1,4 +1,4 @@
-package se.vidstige.timeflex;
+package se.vidstige.timeflex.Punch;
 
 import java.util.Date;
 
