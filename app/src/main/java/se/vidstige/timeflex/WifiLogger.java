@@ -38,6 +38,11 @@ public class WifiLogger extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i("WiFiLogger", "Scan results received");
+        boolean idle = new ShiftStore(context).getActiveShift() == null;
+        if (idle) {
+            Log.i("WiFiLogger", "Not saving scans because idle.");
+            return;
+        }
         WifiManager w = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         try {
             PrintWriter scan_results = new PrintWriter(context.openFileOutput(getFilename(context), Context.MODE_PRIVATE));

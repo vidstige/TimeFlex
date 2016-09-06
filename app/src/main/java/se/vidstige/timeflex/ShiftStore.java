@@ -23,9 +23,9 @@ public class ShiftStore {
     private final SharedPreferences preferences;
     private static final SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
-    public ShiftStore(Context context, SharedPreferences preferences) {
+    public ShiftStore(Context context) {
         this.context = context;
-        this.preferences = preferences;
+        this.preferences = context.getSharedPreferences("Shifts", Context.MODE_PRIVATE);
     }
 
     public interface Listener {

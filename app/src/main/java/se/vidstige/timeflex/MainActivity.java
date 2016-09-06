@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements ShiftStore.Listen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        shiftStore = new ShiftStore(this, this.getPreferences(MODE_PRIVATE));
+        shiftStore = new ShiftStore(this);
         final Context context = this;
 
         status_label = (TextView) findViewById(R.id.status);
@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements ShiftStore.Listen
             }
         });
 
+        updateUI();
         shiftStore.addListener(this);
 
         final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
@@ -75,17 +76,21 @@ public class MainActivity extends AppCompatActivity implements ShiftStore.Listen
         }
     }
 
+    private void updateUI() {
+        boolean working = shiftStore.getActiveShift() != null;
+        start_button.setEnabled(!working);
+        stop_button.setEnabled(working );
+        status_label.setText(working ? R.string.working_status : R.string.idle_status);
+
+    }
+
     @Override
     public void onStarted(ShiftStore store, Shift shift) {
-        start_button.setEnabled(false);
-        stop_button.setEnabled(true);
-        status_label.setText(R.string.working_status);
+        updateUI();
     }
 
     @Override
     public void onEnded(ShiftStore store, Shift shift) {
-        start_button.setEnabled(true);
-        stop_button.setEnabled(false);
-        status_label.setText(R.string.idle_status);
+        updateUI();
     }
 }
