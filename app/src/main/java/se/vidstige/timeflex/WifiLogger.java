@@ -12,9 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by vidstige on 23/08/16.
- */
 public class WifiLogger extends BroadcastReceiver {
     public WifiLogger() {
         Log.i("WiFiLogger", "Created");
@@ -47,14 +44,13 @@ public class WifiLogger extends BroadcastReceiver {
             // Check if it is time to start shift?
             for (ScanResult scanResult : wifiManager.getScanResults()) {
                 if (scanSet != null && scanSet.contains(scanResult.SSID)) {
-                    // TODO: Make the listener subscribe to shared prefs
                     shiftStore.startShift();
                 }
             }
         } else {
             // Have we stored a scan list?
             if (scanSet == null) {
-                HashSet<String> ssids = new HashSet<String>();
+                HashSet<String> ssids = new HashSet<>();
                 for (ScanResult scanResult : wifiManager.getScanResults()) {
                     ssids.add(scanResult.SSID);
                 }

@@ -2,6 +2,7 @@ package se.vidstige.timeflex;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class ShiftStore {
+public class ShiftStore implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final List<Listener> _listeners = new ArrayList<>();
     private final Context context;
     private final SharedPreferences preferences;
@@ -27,6 +28,7 @@ public class ShiftStore {
     public ShiftStore(Context context) {
         this.context = context;
         this.preferences = context.getSharedPreferences("Shifts", Context.MODE_PRIVATE);
+        this.preferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     public Set<String> getScanSet() {
@@ -37,6 +39,23 @@ public class ShiftStore {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putStringSet("scan", scanSet);
         editor.apply();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if ("shift_start".equals(key)) {
+            Shift active = getActiveShift();
+            if (active == null) {
+                for (Listener listener : _listeners) {
+                    listener.onEnded(this, null);
+                }
+
+            } else {
+                for (Listener listener : _listeners) {
+                    listener.onStarted(this, active);
+                }
+            }
+        }
     }
 
     public interface Listener {
@@ -75,9 +94,6 @@ public class ShiftStore {
         if (getActiveShift() != null) throw new IllegalStateException("Shift already started");
         Shift active = new Shift(new Date());
         setActiveShift(active);
-        for (Listener listener : _listeners) {
-            listener.onStarted(this, active);
-        }
     }
 
     public void endShift() {
@@ -88,9 +104,6 @@ public class ShiftStore {
             String filename = getNextFilename(context);
             serialize(ended, context.openFileOutput(filename, context.MODE_PRIVATE));
             setActiveShift(null);
-            for (Listener listener : _listeners) {
-                listener.onEnded(this, ended);
-            }
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (IOException e) {
