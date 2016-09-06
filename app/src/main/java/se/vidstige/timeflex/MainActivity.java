@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 
 
 public class MainActivity extends AppCompatActivity implements ShiftStore.Listener {
@@ -70,6 +71,14 @@ public class MainActivity extends AppCompatActivity implements ShiftStore.Listen
             @Override
             public void onClick(View view) {
                 shiftStore.setFreezeRequested();
+            }
+        });
+
+        final Button unfreeze_button = (Button) findViewById(R.id.unfreeze_button);
+        unfreeze_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shiftStore.setScanSet(Collections.<String>emptySet());
             }
         });
 
