@@ -2,7 +2,7 @@ package se.vidstige.timeflex;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
+import android.net.wifi.WifiManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -32,12 +33,13 @@ public class ShiftStore implements SharedPreferences.OnSharedPreferenceChangeLis
     }
 
     public Set<String> getScanSet() {
-        return preferences.getStringSet("scan", null);
+        return preferences.getStringSet("scan", Collections.<String>emptySet());
     }
 
     public void setScanSet(Set<String> scanSet) {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putStringSet("scan", scanSet);
+        editor.putBoolean("freeze_requested", false);
         editor.apply();
     }
 
@@ -56,6 +58,18 @@ public class ShiftStore implements SharedPreferences.OnSharedPreferenceChangeLis
                 }
             }
         }
+    }
+
+    public void setFreezeRequested() {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("freeze_requested", true);
+        editor.apply();
+        WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        wifiManager.startScan();
+    }
+
+    public boolean getFreezeRequested() {
+        return preferences.getBoolean("freeze_requested", false);
     }
 
     public interface Listener {

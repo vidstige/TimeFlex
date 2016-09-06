@@ -65,6 +65,14 @@ public class MainActivity extends AppCompatActivity implements ShiftStore.Listen
             }
         });
 
+        final Button freeze_button = (Button) findViewById(R.id.freeze_button);
+        freeze_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shiftStore.setFreezeRequested();
+            }
+        });
+
         updateUI();
         shiftStore.addListener(this);
 

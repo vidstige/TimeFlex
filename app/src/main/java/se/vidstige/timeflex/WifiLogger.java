@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+import android.widget.Toast;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,19 +17,13 @@ public class WifiLogger extends BroadcastReceiver {
         Log.i("WiFiLogger", "Created");
     }
 
-    private String createFilename(int i) {
-        return String.format("%05d.scan", i);
-    }
-
-    private String getFilename(Context context) {
-        List<String> files = Arrays.asList(context.fileList());
-        String filename;
-        int i = 0 ;
-        do {
-            filename = createFilename(i);
-            i++;
-        } while (files.contains(filename));
-        return filename;
+    private static boolean anyMatches(List<ScanResult> scanResults, Set<String> ssids) {
+        for (ScanResult scanResult : scanResults) {
+            if (ssids.contains(scanResult.SSID)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -38,37 +32,26 @@ public class WifiLogger extends BroadcastReceiver {
         ShiftStore shiftStore = new ShiftStore(context);
         boolean idle = shiftStore.getActiveShift() == null;
 
-        Set<String> scanSet = shiftStore.getScanSet();
         WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         if (idle) {
-            // Check if it is time to start shift?
-            for (ScanResult scanResult : wifiManager.getScanResults()) {
-                if (scanSet != null && scanSet.contains(scanResult.SSID)) {
-                    shiftStore.startShift();
-                }
+            if (anyMatches(wifiManager.getScanResults(), shiftStore.getScanSet())) {
+                shiftStore.startShift();
             }
         } else {
-            // Have we stored a scan list?
-            if (scanSet == null) {
-                HashSet<String> ssids = new HashSet<>();
-                for (ScanResult scanResult : wifiManager.getScanResults()) {
-                    ssids.add(scanResult.SSID);
-                }
-                shiftStore.setScanSet(ssids);
-            }
-
             // Is it time to check out?
-            if (scanSet != null) {
-                boolean found = false;
-                for (ScanResult scanResult : wifiManager.getScanResults()) {
-                    if (scanSet.contains(scanResult.SSID)) {
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    shiftStore.endShift();
-                }
+            if (!anyMatches(wifiManager.getScanResults(), shiftStore.getScanSet())) {
+                shiftStore.endShift();
             }
+        }
+
+        if (shiftStore.getFreezeRequested()) {
+            Log.i("WiFiLogger", "Freezing ssids");
+            HashSet<String> ssids = new HashSet<>();
+            for (ScanResult scanResult : wifiManager.getScanResults()) {
+                ssids.add(scanResult.SSID);
+            }
+            shiftStore.setScanSet(ssids);
+            Toast.makeText(context, "Frozen", Toast.LENGTH_LONG).show();
         }
     }
 }
