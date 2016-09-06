@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class ShiftStore {
     private final List<Listener> _listeners = new ArrayList<>();
@@ -26,6 +27,16 @@ public class ShiftStore {
     public ShiftStore(Context context) {
         this.context = context;
         this.preferences = context.getSharedPreferences("Shifts", Context.MODE_PRIVATE);
+    }
+
+    public Set<String> getScanSet() {
+        return preferences.getStringSet("scan", null);
+    }
+
+    public void setScanSet(Set<String> scanSet) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putStringSet("scan", scanSet);
+        editor.apply();
     }
 
     public interface Listener {
