@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -81,6 +82,20 @@ public class MainActivity extends AppCompatActivity implements ShiftStore.Listen
                 shiftStore.setScanSet(Collections.<String>emptySet());
             }
         });
+
+        final Button log_access_points_button = (Button) findViewById(R.id.log_access_points);
+        log_access_points_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("MainActivity", "Access points");
+                for (String ap : shiftStore.getScanSet()) {
+                    Log.i("MainActivity", "AP:" + ap);
+                }
+                //shiftStore.setScanSet(Collections.<String>emptySet());
+            }
+        });
+
+
 
         updateUI();
         shiftStore.addListener(this);
