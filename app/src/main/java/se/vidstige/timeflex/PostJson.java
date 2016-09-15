@@ -50,7 +50,7 @@ class PostJson extends AsyncTask<String, Void, Integer> {
             Log.i("PostJson", "POST sent... " + responseCode);
             if (responseCode == 200) {
                 context.deleteFile(filename);
-                Log.i("PostJson", "...deleting " + filename);
+                Log.i("PostJson", "...deleted " + filename);
             }
 
         } catch (IOException e) {

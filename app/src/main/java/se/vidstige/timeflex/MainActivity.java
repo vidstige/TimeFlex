@@ -59,6 +59,10 @@ public class MainActivity extends AppCompatActivity implements ShiftStore.Listen
                             URL url = new URL("http://timeflex-vidstige.rhcloud.com/api/shift/");
                             new PostJson(context, filename, url).execute();
                         }
+                        if (filename.endsWith(".scan")) {
+                            URL url = new URL("http://timeflex-vidstige.rhcloud.com/api/scan/");
+                            new PostJson(context, filename, url).execute();
+                        }
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
