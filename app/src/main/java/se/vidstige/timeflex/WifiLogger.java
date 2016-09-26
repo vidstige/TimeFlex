@@ -24,17 +24,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import se.vidstige.timeflex.Punch.Punch;
-
 public class WifiLogger extends BroadcastReceiver {
+    private static final String TAG = "WiFiLogger";
     public WifiLogger() {
-        Log.i("WiFiLogger", "Created");
+        Log.i(TAG, "Created");
     }
     private static final SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
     private static boolean anyMatches(Set<String> a, Set<String> b) {
-        for (String ssid : a) {
-            if (b.contains(a)) {
+        for (String element : a) {
+            if (b.contains(element)) {
                 return true;
             }
         }
@@ -66,9 +65,11 @@ public class WifiLogger extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i("WiFiLogger", "Scan results received");
+        Log.i(TAG, "Scan results received");
         WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         Date time = new Date();
+
+        // Save scan
         try {
             JSONObject root = new JSONObject();
             JSONArray ssids = new JSONArray();
@@ -84,7 +85,7 @@ public class WifiLogger extends BroadcastReceiver {
             FileOutputStream outputStream = context.openFileOutput(getFilename(context), Context.MODE_PRIVATE);
 
             OutputStreamWriter osw = new OutputStreamWriter(outputStream, "UTF-8");
-            Log.i("WiFiLogger", "Writing: " + root.toString());
+            Log.i(TAG, "Writing: " + root.toString());
             osw.write(root.toString());
             osw.flush();
             osw.close();
@@ -96,14 +97,20 @@ public class WifiLogger extends BroadcastReceiver {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*ShiftStore shiftStore = new ShiftStore(context);
+
+        // Compute shits on the fly
+        ShiftStore shiftStore = new ShiftStore(context);
         boolean idle = shiftStore.getActiveShift() == null;
 
-        WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         Set<String> scanResults = toSet(wifiManager.getScanResults());
         scanResults.remove("");
         Set<String> frozen = shiftStore.getScanSet();
         frozen.remove("");
+        Log.i(TAG, "Frozen: ");
+        for (String ssid : frozen) {
+            Log.i(TAG, "- " + ssid);
+        }
+
         if (idle) {
             if (anyMatches(scanResults, frozen)) {
                 shiftStore.startShift();
@@ -115,6 +122,7 @@ public class WifiLogger extends BroadcastReceiver {
             }
         }
 
+        // Re-freeze
         if (shiftStore.getFreezeRequested()) {
             Log.i("WiFiLogger", "Freezing ssids");
             HashSet<String> ssids = new HashSet<>();
@@ -123,6 +131,6 @@ public class WifiLogger extends BroadcastReceiver {
             }
             shiftStore.setScanSet(ssids);
             Toast.makeText(context, "Frozen", Toast.LENGTH_LONG).show();
-        }*/
+        }
     }
 }
